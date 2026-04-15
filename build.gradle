@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'io.qameta.allure' version '3.0.0'
+    id 'io.freefair.lombok' version '9.0.0'
+}
+
+group = 'com.sqa'
+version = '1.0-SNAPSHOT'
+
+def allureVersion = "2.24.0"
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(
+                JavaVersion.current().majorVersion.toInteger()
+        )
+    }
+}
+
+allure{
+    version = allureVersion
+    useTestNG{
+        version = allureVersion
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.testng:testng:7.11.0'
+    testImplementation 'io.rest-assured:rest-assured:5.5.6'
+    testImplementation 'io.rest-assured:json-path:5.5.6'
+    testImplementation 'io.rest-assured:json-schema-validator:5.5.6'
+    testImplementation 'org.hamcrest:hamcrest-core:3.0'
+    implementation 'io.qameta.allure:allure-testng:2.24.0'
+    implementation 'io.qameta.allure:allure-rest-assured:2.24.0'
+    implementation 'com.github.automatedowl:allure-environment-writer:1.0.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.2'
+    implementation 'com.google.guava:guava:33.5.0-jre'
+    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation 'org.slf4j:slf4j-api:2.0.17'
+    implementation 'org.yaml:snakeyaml:2.5'
+    implementation 'org.apache.kafka:kafka-clients:4.1.0'
+    implementation 'redis.clients:jedis:6.2.0'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.18'
+    testImplementation 'org.assertj:assertj-core:3.27.5'
+    testImplementation 'org.awaitility:awaitility:4.3.0'
+}
+
+ext.env = 'dev'
+test {
+    systemProperty 'env', System.properties['env'] ?: "${env}"
+    useTestNG(){
+        //property 에는 보통 repository name을 넣는다.
+        if(project.hasProperty("test1")){
+            suites 'src/test/resources/suites/example.xml'
+        }else if(project.hasProperty("test2")){
+            suites 'src/test/resources/suites/suite.xml'
+        }
+        else{
+            exclude '**/**'
+        }
+    }
+
+    testLogging {
+        showStandardStreams = true
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+        exceptionFormat = 'full'
+        events "PASSED", "FAILED", "SKIPPED"
+    }
+}
