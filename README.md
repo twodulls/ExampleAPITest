@@ -61,13 +61,44 @@ ExampleAPITest/
 
 ## 아키텍처 개요
 
-### 레이어 구조
+```mermaid
+classDiagram
+    class BaseTest {
+        <<abstract>>
+        +String BASEURL
+        +RequestSpecification REQUESTSPEC
+        +TestData testData
+        +beforeSuite()
+        +beforeClass()
+    }
+    class GetAllTutorialsTest {
+        -ExampleCommon exampleCommon
+        -SoftAssertions sa
+        -int id
+        +setUp()
+        +setUpTest()
+        +튜토리얼_전체_조회_확인()
+        +teardown()
+    }
+    class ExampleCommon {
+        +createTutorial(reqBody)
+        +getAllTutorials()
+        +getTutorialById(id)
+        +deleteTutorial(id)
+    }
+    class TestDataManager {
+        <<Singleton>>
+        +getInstance(env) TestDataManager
+        +getData() TestData
+    }
+    class TestData {
+        +String baseUrl
+    }
 
-```
-TestClass (domain/)
-    └── BaseTest (common/)          ← 환경 초기화, RequestSpec 설정
-        └── TestDataManager         ← YAML에서 환경별 설정 로드
-ApiCommon (apiCommon/)              ← API 엔드포인트 호출 메서드 모음
+    BaseTest <|-- GetAllTutorialsTest : extends
+    GetAllTutorialsTest --> ExampleCommon : uses
+    BaseTest --> TestDataManager : uses
+    TestDataManager --> TestData : creates
 ```
 
 ### 환경별 테스트 데이터
